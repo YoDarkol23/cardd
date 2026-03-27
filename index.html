@@ -550,6 +550,36 @@
             }
         });
     }
+    let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Предотвращаем автоматический показ
+    e.preventDefault();
+    // Сохраняем событие, чтобы вызвать его позже
+    deferredPrompt = e;
+    
+    // Создаем кнопку установки, если её еще нет
+    if (!document.getElementById('install-btn')) {
+        const installBtn = document.createElement('button');
+        installBtn.id = 'install-btn';
+        installBtn.innerText = 'Установить приложение';
+        installBtn.className = 'btn-primary'; // Используем твой стиль
+        installBtn.style.marginTop = '20px';
+        
+        installBtn.addEventListener('click', () => {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('Пользователь установил PWA');
+                }
+                deferredPrompt = null;
+            });
+        });
+        
+        // Добавляем кнопку в меню
+        document.getElementById('menu-section').appendChild(installBtn);
+    }
+});
 </script>
 </body>
 </html>
