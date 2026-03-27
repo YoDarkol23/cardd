@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0908">
+<link rel="apple-touch-icon" href="icon-192.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учим слова | Premium Dark</title>
+    <style>
+        /* === ПАЛИТРА И БАЗОВЫЕ НАСТРОЙКИ (Premium Dark / Orange) === */
+        :root {
+            --bg-main: #0a0908;        /* Очень темный, почти черный (как фон сайта) */
+            --bg-surface: #1a1715;     /* Темно-коричневато-серый для карточек */
+            --bg-input: #12100e;       /* Глубокий темный фон полей ввода */
+            
+            --text-primary: #ffffff;   /* Чистый белый текст */
+            --text-secondary: #a8a29e; /* Теплый серый для второстепенного текста */
+            
+            --accent-gradient: linear-gradient(135deg, #f26c2a, #e65c19); /* Фирменный оранжевый */
+            --accent-glow: rgba(242, 108, 42, 0.3);
+            
+            --success: #2e7d32;        /* Более строгий изумрудный */
+            --success-glow: rgba(46, 125, 50, 0.3);
+            
+            --danger: #d32f2f;         /* Строгий красный */
+            --danger-glow: rgba(211, 47, 47, 0.3);
+            
+            --border-color: #332d29;   /* Теплый темный контур */
+        }
+
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            padding-top: 40px;
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            padding: 20px;
+        }
+
+        h2 { 
+            margin-top: 0; 
+            text-align: center; 
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* === ФОРМЫ И ПОЛЯ ВВОДА === */
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 16px;
+            background-color: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px; /* Более строгие углы */
+            font-size: 16px;
+            box-sizing: border-box;
+            font-family: inherit;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            outline: none;
+        }
+        
+        input[type="text"]:focus, textarea:focus {
+            border-color: #f26c2a;
+            box-shadow: 0 0 0 2px rgba(242, 108, 42, 0.2);
+        }
+
+        textarea {
+            height: 220px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: #5c5550;
+        }
+
+        /* === КНОПКИ === */
+        button {
+            padding: 14px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            border: none;
+            border-radius: 6px; /* Более строгие углы */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        button:active { transform: scale(0.98); }
+
+        .btn-primary { 
+            background: var(--accent-gradient); 
+            width: 100%; 
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+        .btn-primary:hover { box-shadow: 0 6px 20px var(--accent-glow); filter: brightness(1.1); }
+
+        .btn-know { background-color: var(--success); width: 48%; box-shadow: 0 4px 15px var(--success-glow); }
+        .btn-know:hover { filter: brightness(1.1); }
+
+        .btn-dont-know { background-color: var(--danger); width: 48%; box-shadow: 0 4px 15px var(--danger-glow); }
+        .btn-dont-know:hover { filter: brightness(1.1); }
+
+        .btn-secondary { 
+            background-color: transparent; 
+            border: 1px solid var(--border-color); 
+            width: 100%; 
+            margin-top: 15px; 
+            color: var(--text-secondary);
+        }
+        .btn-secondary:hover { background-color: var(--bg-surface); color: var(--text-primary); }
+
+        .btn-delete { 
+            background-color: transparent; 
+            border: 1px solid var(--danger); 
+            color: var(--danger); 
+            padding: 8px 14px; 
+            font-size: 13px; 
+            border-radius: 4px; 
+        }
+        .btn-delete:hover { background-color: var(--danger); color: white; }
+
+        .btn-ghost { background-color: var(--bg-surface); flex: 1; font-size: 13px; border: 1px solid var(--border-color); }
+        .btn-ghost:hover { border-color: #f26c2a; color: #f26c2a; }
+
+        /* === СЕКЦИИ И МЕНЮ === */
+        .section-wrapper {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-surface);
+            padding: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+        
+        .list-item:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6); 
+            border-color: rgba(242, 108, 42, 0.4);
+        }
+
+        .list-info { flex-grow: 1; }
+        .list-name { font-weight: 500; font-size: 18px; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .list-count { font-size: 14px; color: var(--text-secondary); }
+        
+        .data-controls {
+            margin-top: 20px; 
+            padding-top: 20px; 
+            border-top: 1px solid var(--border-color); 
+            display: flex; 
+            gap: 12px;
+        }
+
+        /* === КАРТОЧКА СЛОВА === */
+        .card-wrapper { position: relative; width: 100%; perspective: 1000px; }
+        
+        #flashcard {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(145deg, var(--bg-surface), #12100e);
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 36px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 30px;
+            box-sizing: border-box;
+            user-select: none;
+            transition: opacity 0.2s ease-in-out;
+            letter-spacing: 0.5px;
+        }
+        
+        #btn-speak {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: transform 0.2s, border-color 0.2s, color 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #btn-speak:hover { transform: scale(1.1); border-color: #f26c2a; color: #f26c2a; }
+        
+        .controls { display: flex; justify-content: space-between; width: 100%; gap: 15px; }
+        #counter { font-size: 14px; color: var(--text-secondary); font-weight: 500; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Специфичные стили для пустых состояний */
+        .empty-state { text-align: center; color: var(--text-secondary); padding: 30px 0; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="menu-section" class="section-wrapper" style="display: flex;">
+        <h2>Мои словари</h2>
+        <div id="lists-container"></div>
+        <button class="btn-primary" onclick="uiController.showInputSection()">+ Добавить новый список</button>
+        
+        <div class="data-controls">
+            <button class="btn-ghost" onclick="dataManager.exportData()">💾 Экспорт</button>
+            <button class="btn-ghost" onclick="document.getElementById('import-input').click()">📂 Импорт</button>
+            <input type="file" id="import-input" style="display: none;" onchange="dataManager.importData(event)" accept=".json">
+        </div>
+    </div>
+
+    <div id="input-section" class="section-wrapper">
+        <h2>Новый словарь</h2>
+        <input type="text" id="list-name" placeholder="Название (например: Глаголы движения)">
+        <textarea id="words-input" placeholder="Формат ввода:&#10;слово - перевод&#10;&#10;Пример:&#10;1. resilient — устойчивый&#10;2. to implement — внедрять"></textarea>
+        
+        <div style="display: flex; gap: 12px;">
+            <button class="btn-primary" style="flex: 1;" onclick="appController.saveNewList()">Сохранить</button>
+            <button class="btn-secondary" style="flex: 1; margin-top: 0;" onclick="uiController.showMenuSection()">Отмена</button>
+        </div>
+    </div>
+
+    <div id="card-section" class="section-wrapper">
+        <h2 id="current-list-title">Название списка</h2>
+        <div id="counter">Осталось слов: 0</div>
+        
+        <div class="card-wrapper">
+            <button id="btn-speak" onclick="learningController.speakWord(event)" title="Прослушать">🔊</button>
+            <div id="flashcard" onclick="learningController.toggleLanguage()"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-dont-know" onclick="learningController.markUnknown()">Не знаю</button>
+            <button class="btn-know" onclick="learningController.markKnown()">Знаю</button>
+        </div>
+        
+        <button class="btn-secondary" onclick="uiController.showMenuSection()">Вернуться в меню</button>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'vocabularyData_v1';
+
+    const state = {
+        savedLists: JSON.parse(localStorage.getItem(STORAGE_KEY)) || [],
+        activeWords: [],
+        currentIndex: -1,
+        isShowingEnglish: true
+    };
+
+    const uiController = {
+        showMenuSection() {
+            document.getElementById('input-section').style.display = 'none';
+            document.getElementById('card-section').style.display = 'none';
+            document.getElementById('menu-section').style.display = 'flex';
+            this.renderLists();
+        },
+
+        showInputSection() {
+            document.getElementById('menu-section').style.display = 'none';
+            document.getElementById('card-section').style.display = 'none';
+            document.getElementById('input-section').style.display = 'flex';
+            
+            document.getElementById('list-name').value = '';
+            document.getElementById('words-input').value = '';
+        },
+
+        showCardSection(title) {
+            document.getElementById('menu-section').style.display = 'none';
+            document.getElementById('input-section').style.display = 'none';
+            document.getElementById('card-section').style.display = 'flex';
+            document.getElementById('current-list-title').innerText = title;
+        },
+
+        renderLists() {
+            const container = document.getElementById('lists-container');
+            container.innerHTML = '';
+
+            if (state.savedLists.length === 0) {
+                container.innerHTML = '<div class="empty-state">Нет сохраненных словарей.<br>Создайте свой первый список!</div>';
+                return;
+            }
+
+            state.savedLists.forEach((list, index) => {
+                const listEl = document.createElement('div');
+                listEl.className = 'list-item';
+                listEl.onclick = () => appController.startLearning(index); 
+                
+                listEl.innerHTML = `
+                    <div class="list-info">
+                        <div class="list-name">${list.name}</div>
+                        <div class="list-count">${list.words.length} слов(а)</div>
+                    </div>
+                    <button class="btn-delete" onclick="appController.deleteList(${index}, event)">Удалить</button>
+                `;
+                container.appendChild(listEl);
+            });
+        },
+
+        updateFlashcard(text, showSpeakButton) {
+            const cardEl = document.getElementById('flashcard');
+            cardEl.style.opacity = '0';
+            setTimeout(() => {
+                cardEl.innerText = text;
+                cardEl.style.opacity = '1';
+            }, 150);
+            
+            document.getElementById('btn-speak').style.display = showSpeakButton ? 'flex' : 'none';
+        },
+
+        updateCounter(count) {
+            document.getElementById('counter').innerText = `Осталось карточек: ${count}`;
+        }
+    };
+
+    const dataManager = {
+        saveToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state.savedLists));
+            } catch (error) {
+                console.error("Storage error:", error);
+                alert("Ошибка сохранения данных в браузере.");
+            }
+        },
+
+        parseTextToWords(text) {
+            const lines = text.split('\n');
+            const wordsArray = [];
+            
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                const cleanedLine = line.replace(/^\d+[\.\)]\s*/, ''); 
+                const parts = cleanedLine.split(/\s*[-–—]\s*/);
+                
+                if (parts.length >= 2) {
+                    wordsArray.push({
+                        en: parts[0].trim(),
+                        ru: parts.slice(1).join(' - ').trim()
+                    });
+                }
+            });
+            return wordsArray;
+        },
+
+        exportData() {
+            if (state.savedLists.length === 0) {
+                alert("Нет данных для экспорта.");
+                return;
+            }
+            
+            try {
+                const dataStr = JSON.stringify(state.savedLists, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                
+                const linkEl = document.createElement('a');
+                linkEl.setAttribute('href', dataUri);
+                linkEl.setAttribute('download', 'vocabulary_backup.json');
+                document.body.appendChild(linkEl);
+                linkEl.click();
+                document.body.removeChild(linkEl);
+            } catch (error) {
+                alert("Не удалось экспортировать файл.");
+            }
+        },
+
+        importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (!Array.isArray(importedData) || !importedData.every(list => list.name && Array.isArray(list.words))) {
+                        throw new Error("Invalid structure");
+                    }
+
+                    if (confirm("Объединить импортированные данные с текущими?\n[ОК] - Объединить\n[Отмена] - Заменить текущие")) {
+                        state.savedLists = [...state.savedLists, ...importedData];
+                    } else {
+                        state.savedLists = importedData;
+                    }
+                    
+                    this.saveToStorage();
+                    uiController.renderLists();
+                    alert("Словари успешно загружены!");
+                } catch (error) {
+                    alert("Ошибка: Неверный формат файла.");
+                } finally {
+                    event.target.value = ''; 
+                }
+            };
+            reader.readAsText(file);
+        }
+    };
+
+    const learningController = {
+        showNextCard() {
+            if (state.activeWords.length === 0) {
+                alert('Отличная работа! Вы повторили все слова из этого списка ✨');
+                uiController.showMenuSection();
+                return;
+            }
+
+            let randomIndex = Math.floor(Math.random() * state.activeWords.length);
+            
+            if (state.activeWords.length > 1 && randomIndex === state.currentIndex) {
+                randomIndex = (randomIndex + 1) % state.activeWords.length;
+            }
+
+            state.currentIndex = randomIndex;
+            state.isShowingEnglish = true;
+            
+            const currentWord = state.activeWords[state.currentIndex];
+            uiController.updateFlashcard(currentWord.en, true);
+            uiController.updateCounter(state.activeWords.length);
+        },
+
+        toggleLanguage() {
+            if (state.currentIndex === -1) return;
+            
+            state.isShowingEnglish = !state.isShowingEnglish;
+            const currentWord = state.activeWords[state.currentIndex];
+            const textToDisplay = state.isShowingEnglish ? currentWord.en : currentWord.ru;
+            
+            uiController.updateFlashcard(textToDisplay, state.isShowingEnglish);
+        },
+
+        speakWord(event) {
+            event.stopPropagation(); 
+            
+            if (state.currentIndex !== -1) {
+                const textToSpeak = state.activeWords[state.currentIndex].en;
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'en-US'; 
+                utterance.rate = 0.9; 
+                window.speechSynthesis.speak(utterance);
+            }
+        },
+
+        markKnown() {
+            state.activeWords.splice(state.currentIndex, 1);
+            state.currentIndex = -1; 
+            this.showNextCard();
+        },
+
+        markUnknown() {
+            this.showNextCard();
+        }
+    };
+
+    const appController = {
+        init() {
+            uiController.showMenuSection();
+        },
+
+        saveNewList() {
+            let name = document.getElementById('list-name').value.trim();
+            const text = document.getElementById('words-input').value;
+            
+            if (!name) name = `Словарь ${state.savedLists.length + 1}`; 
+            
+            const parsedWords = dataManager.parseTextToWords(text);
+
+            if (parsedWords.length === 0) {
+                alert('Не удалось распознать слова. Проверьте правильность формата (слово - перевод).');
+                return;
+            }
+
+            state.savedLists.push({ name, words: parsedWords });
+            dataManager.saveToStorage();
+            uiController.showMenuSection();
+        },
+
+        deleteList(index, event) {
+            event.stopPropagation(); 
+            if (confirm('Удалить этот словарь навсегда?')) {
+                state.savedLists.splice(index, 1);
+                dataManager.saveToStorage();
+                uiController.renderLists();
+            }
+        },
+
+        startLearning(listIndex) {
+            const selectedList = state.savedLists[listIndex];
+            
+            if (!selectedList || selectedList.words.length === 0) {
+                alert('Этот словарь пуст.');
+                return;
+            }
+
+            state.activeWords = [...selectedList.words];
+            uiController.showCardSection(selectedList.name);
+            learningController.showNextCard();
+        }
+    };
+
+    window.onload = () => appController.init();
+    
+    // Регистрируем Service Worker после загрузки страницы
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', async () => {
+            try {
+                const registration = await navigator.serviceWorker.register('/sw.js');
+                console.log('ServiceWorker registration successful with scope:', registration.scope);
+            } catch (error) {
+                console.error('ServiceWorker registration failed:', error);
+            }
+        });
+    }
+</script>
+</body>
+</html>
